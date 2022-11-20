@@ -1,0 +1,16 @@
+# ================================
+#        Config
+# ================================
+# Database Configuration
+# Allowed Database Types
+# - H2
+# - FLAT
+# - MYSQL
+# - REDIS
+host: localhost
+database: testdb
+user_name: root
+password: ''
+port: 3306
+use_ssl: false
+db_type: MARIADB
