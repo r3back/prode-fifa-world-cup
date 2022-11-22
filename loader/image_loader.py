@@ -32,3 +32,16 @@ class ImageLoader:
         pil_img = Image.open(my_picture)
         # convert to an image Tkinter can use
         return ImageTk.PhotoImage(pil_img)
+
+    @staticmethod
+    def get_image_from_url_resized(url, height, width):
+        my_page = urlopen(url)
+        # create an image file object
+        my_picture = io.BytesIO(my_page.read())
+        # use PIL to open image formats like .jpg  .png  .gif  etc.
+        pil_img = Image.open(my_picture)
+
+        new_image= pil_img.resize((height, width), Image.ANTIALIAS)
+
+        # convert to an image Tkinter can use
+        return ImageTk.PhotoImage(new_image)

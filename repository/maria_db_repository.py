@@ -33,15 +33,18 @@ class MariaDBUserRepository(UserRepository):
         if len(retorno) == 0:
             return None
         else:
-            self.datos = json.loads(retorno[3])
+            return self.deserialize(retorno)
 
-            self.prodes = []
+    def deserialize(self, retorno):
+        datos = json.loads(retorno[3])
 
-            for dato in self.datos:
-                self.prodes.append(UserProde(dato["equipo_local"], dato["equipo_visitante"], dato["equipo_local_goles"],
-                                             dato["equipo_visitante_goles"]))
+        prodes = []
 
-            return User(retorno[0], retorno[1], retorno[2], self.prodes)
+        for dato in datos:
+            prodes.append(UserProde(dato["equipo_local"], dato["equipo_visitante"], dato["equipo_local_goles"],
+                                         dato["equipo_visitante_goles"], dato["email_enviado"], dato["goles_reales_local"], dato["goles_reales_visitante"]))
+
+        return User(retorno[0], retorno[1], retorno[2], prodes)
 
     def agregar_usuario(self, usuario):
         sql = "INSERT INTO `Users` (`Name`, `Email`, `Password`, `Data`) VALUES (%s, %s, %s, %s)"
@@ -76,15 +79,7 @@ class MariaDBUserRepository(UserRepository):
         if len(retorno) == 0:
             return None
         else:
-            self.datos = json.loads(retorno[3])
-
-            self.prodes = []
-
-            for dato in self.datos:
-                self.prodes.append(UserProde(dato["equipo_local"], dato["equipo_visitante"], dato["equipo_local_goles"],
-                                             dato["equipo_visitante_goles"]))
-
-            return User(retorno[0], retorno[1], retorno[2], self.prodes)
+            return self.deserialize(retorno)
 
     def get_all_users(self):
         ids = self.get_all_ids()

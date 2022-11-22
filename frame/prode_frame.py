@@ -16,6 +16,7 @@ class Prode(Frame):
     executing = False
     goles_visitante_texto = {}
     goles_local_texto = {}
+    banderas = {}
 
     def __init__(self, usuario, *args):
         super().__init__()
@@ -45,18 +46,19 @@ class Prode(Frame):
         self.logo = ImageLoader.get_image_from_file("logo.png")
         Label(self.master, image=self.logo, bg='firebrick', height=150, width=150).place(x=585)
 
+
         pady = 180
         cantidad = 0
         for partido in ExternalProdeAPI.obtener_partidos():
             if cantidad == 15:
                 break
 
-            if partido.ya_fue_jugado:
-                continue
-
             fecha = partido.fecha
             local = partido.equipo_local
             visitante = partido.equipo_visitante
+            bandera_local = partido.bandera_local
+            bandera_visitante = partido.bandera_visitante
+
 
             key = "{};{}".format(local, visitante)
 
@@ -71,6 +73,17 @@ class Prode(Frame):
                 self.status = tk.DISABLED
                 self.goles_visitante_texto[key].set(userprode.equipo_visitante_goles)
                 self.goles_local_texto[key].set(userprode.equipo_local_goles)
+
+            #Bandera Local
+            self.banderas[local] = ImageLoader.get_image_from_url_resized(bandera_local, 30, 15)
+
+            Label(self.master, image=self.banderas[local], bg='firebrick', height=15, width=30).place(x=450, y=pady)
+
+            #Bandera Visitante
+            self.banderas[visitante] = ImageLoader.get_image_from_url_resized(bandera_visitante, 30, 15)
+
+            Label(self.master, image=self.banderas[visitante], bg='firebrick', height=15, width=30).place(x=850, y=pady)
+
 
             # Equipo Local
             Label(self.master, text=local, foreground="white", background="firebrick", font=('Arial', 9, 'bold')).place(
@@ -117,7 +130,7 @@ class Prode(Frame):
             if goles_local is None or goles_visitante is None or goles_local == "" or goles_visitante == "":
                 continue
 
-            user_prode = UserProde(local, visitante, goles_local, goles_visitante)
+            user_prode = UserProde(local, visitante, goles_local, goles_visitante, "false", "-1", "-1")
             user_prodes.append(user_prode)
 
         return user_prodes
@@ -136,3 +149,6 @@ class Prode(Frame):
             widget.destroy()
 
         self.widgets()
+
+ExternalProdeAPI.descargar()
+Prode(User("an", "a", "a", []))

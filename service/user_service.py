@@ -24,3 +24,6 @@ class UserService:
 
     def agregar_usuario(self, usuario):
         return self.repository.agregar_usuario(usuario)
+
+    def get_all_users(self):
+        return self.repository.get_all_users()

@@ -1,6 +1,8 @@
 import asyncio
 from contextlib import suppress
 
+from service.user_service import UserService
+
 
 class Periodic:
     def __init__(self, func, time):
@@ -31,4 +33,19 @@ class Periodic:
 class WinChecker():
 
     def check_winners(self):
-        pass
+
+        for user in UserService.get_instance().get_all_users():
+            prodes = user.datos
+
+            for prode in prodes:
+                if prode.email_enviado == "false":
+                    continue
+
+                local = prode.equipo_local
+                visitante = prode.equipo_visitante
+
+                local_goles = prode.equipo_local_goles
+                visitante_goles = prode.equipo_visitante_goles
+
+
+

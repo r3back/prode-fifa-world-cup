@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+from threading import Thread
 
 import requests
 
@@ -32,6 +33,23 @@ class ExternalProdeAPI:
 
     @staticmethod
     def obtener_equipo(token, id):
+
+        equipo = None
+
+        if token is None:
+            return equipo
+
+        request = requests.get('http://api.cup2022.ir/api/v1/team/{}'.format(id), headers={
+            'Authorization': 'Bearer {}'.format(token),
+        })
+
+        request_json = json.loads(request.text)
+
+        return request_json
+
+    @staticmethod
+    def obtener_partidos_request():
+        token = ExternalProdeAPI.obtener_token()
 
         equipo = None
 
@@ -90,14 +108,74 @@ class ExternalProdeAPI:
 
         os.chdir(path)
 
-        if not os.path.exists(path + "/equipos"):
-            os.mkdir("equipos")
+        if not os.path.exists(path + "/partidos"):
+            os.mkdir("partidos")
 
-        os.chdir(path + "/equipos")
+        os.chdir(path + "/partidos")
 
         token = ExternalProdeAPI.obtener_token()
 
+        ExternalProdeAPI.descargar_partidos_task(token)
+
         asyncio.run(ExternalProdeAPI.create_all_files(token))
+
+    @staticmethod
+    def descargar_partidos_task(token):
+        thread = Thread(target=ExternalProdeAPI.create_runnable(token))
+        thread.start()
+
+    @staticmethod
+    def create_runnable(token):
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(ExternalProdeAPI.descargar_partidos(token))
+
+    @staticmethod
+    async def descargar_partidos(token):
+
+        import pathlib
+
+        path = str(pathlib.Path(__file__).parent.resolve()) + '/../resources'
+
+        os.chdir(path)
+
+        if not os.path.exists(path + "/partidos"):
+            os.mkdir("partidos")
+
+        os.chdir(path + "/partidos")
+
+        #Current File
+        file_name = 'partidos.json'
+
+        if os.path.exists(file_name):
+            file = open(file_name, encoding="utf8")
+            config = json.load(file)
+            file.close()
+
+            request = requests.get('http://api.cup2022.ir/api/v1/match', headers={
+                'Authorization': 'Bearer {}'.format(token),
+            })
+
+            print("Text: " + request.text)
+            request_json = json.loads(request.text)
+
+            if request_json == config:
+                print("Es igual")
+            else:
+                json_object = json.dumps(request_json)
+
+                with open(file_name, "w") as outfile:
+                    outfile.write(json_object)
+
+                print("No Es igual")
+
+            print("Existe el archivo de los partidos")
+        else:
+            print("No existe el archi de los partidos")
+
+
+
+
+        #asyncio.run(ExternalProdeAPI.create_all_files(token))
 
     @staticmethod
     async def create_all_files(token):
@@ -152,7 +230,10 @@ class ExternalProdeAPI:
                 equipo_local = ExternalProdeAPI.get_instance().get_name_by_id(equipo_local_id)
                 equipo_visitante = ExternalProdeAPI.get_instance().get_name_by_id(equipo_visitante_id)
 
-                partidos.append(Match(equipo_local, equipo_visitante, ya_fue_jugado, fecha))
+                bandera_local = ExternalProdeAPI.get_instance().get_flag_by_id(equipo_local_id)
+                bandera_visitante = ExternalProdeAPI.get_instance().get_flag_by_id(equipo_visitante_id)
+
+                partidos.append(Match(equipo_local, equipo_visitante, bandera_local, bandera_visitante, ya_fue_jugado, fecha))
             except:
                 continue
 
