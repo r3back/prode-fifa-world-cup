@@ -1,0 +1,10 @@
+.idea/
+api/__pycache__/
+config/__pycache__/
+factory/__pycache__/
+frame/__pycache__/
+game/__pycache__/
+loader/__pycache__/
+repository/__pycache__/
+resources/equipos/
+service/__pycache__/
