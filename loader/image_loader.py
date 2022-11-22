@@ -15,35 +15,11 @@ except ImportError:
 
 
 class ImageLoader:
-    __instance = None
-    picture = None
-
-    @staticmethod
-    def get_instance():
-        if ImageLoader.__instance is None:
-            ImageLoader.__instance = ImageLoader()
-        return ImageLoader.__instance
-
-    def get_image_from_file(self, nombre):
-        path = str(pathlib.Path(__file__).parent.resolve()) + '/../resources/images'
-
-        os.chdir(path)
-
-        print(os.listdir())
-
-        print("Loader: " + str(PhotoImage(file=nombre)))
-
-        self.picture = PhotoImage(file=nombre)
-
-        return self.picture
-
     @staticmethod
     def get_image_from_file(nombre):
         path = str(pathlib.Path(__file__).parent.resolve()) + '/../resources/images'
 
         os.chdir(path)
-
-        print(os.listdir())
 
         return PhotoImage(file=nombre)
 

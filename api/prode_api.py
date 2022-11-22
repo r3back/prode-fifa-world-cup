@@ -4,7 +4,9 @@ import os
 
 import requests
 
-from me.reb4ck.prode.game.team import Team
+from game.team import Team
+from loader.matches_loader import MatchesConfigLoader
+from game.match import Match
 
 
 class ExternalProdeAPI:
@@ -81,9 +83,10 @@ class ExternalProdeAPI:
 
     @staticmethod
     def descargar():
+
         import pathlib
 
-        path = str(pathlib.Path(__file__).parent.resolve()) + '/../../../../resources'
+        path = str(pathlib.Path(__file__).parent.resolve()) + '/../resources'
 
         os.chdir(path)
 
@@ -130,5 +133,34 @@ class ExternalProdeAPI:
             name = json["data"][0]["name_en"]
             flag = json["data"][0]["flag"]
             if number == 31:
-                print("Termino")
+                print("Partidos cargados con exito!")
             ExternalProdeAPI.get_instance().teams_map[number] = Team(name, flag)
+
+    @staticmethod
+    def obtener_partidos():
+        partidos = []
+
+        request = MatchesConfigLoader.get_matches_config()
+
+        for partido in request["data"]:
+            try:
+                equipo_local_id = partido["home_team_id"]
+                equipo_visitante_id = partido["away_team_id"]
+                ya_fue_jugado = ExternalProdeAPI.ya_fue_jugado(partido["finished"])
+                fecha = partido["local_date"]
+
+                equipo_local = ExternalProdeAPI.get_instance().get_name_by_id(equipo_local_id)
+                equipo_visitante = ExternalProdeAPI.get_instance().get_name_by_id(equipo_visitante_id)
+
+                partidos.append(Match(equipo_local, equipo_visitante, ya_fue_jugado, fecha))
+            except:
+                continue
+
+        return partidos
+
+    @staticmethod
+    def ya_fue_jugado(status):
+        if status == "FALSE":
+            return False
+        else:
+            return True

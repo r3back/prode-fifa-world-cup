@@ -1,4 +1,4 @@
-from me.reb4ck.prode.factory.DatabaseFactory import DatabaseFactory
+from factory.database_factory import DatabaseFactory
 
 
 class UserService:
@@ -21,3 +21,6 @@ class UserService:
 
     def guardar_usuario(self, usuario):
         return self.repository.guardar_usuario(usuario)
+
+    def agregar_usuario(self, usuario):
+        return self.repository.agregar_usuario(usuario)

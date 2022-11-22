@@ -2,21 +2,26 @@ from tkinter import Tk, Button, Entry, Label, ttk
 from tkinter import END, HORIZONTAL, Frame
 import time
 
-from me.reb4ck.prode.config.ImageLoader import ImageLoader
-from me.reb4ck.prode.frame.Prode import Prode
-from me.reb4ck.prode.service.UserService import UserService
+from loader.image_loader import ImageLoader
+from frame.prode_frame import Prode
+from service.user_service import UserService
 
 
 class Login(Frame):
     executing = False
 
-    def __init__(self, master, *args):
-        super().__init__(master, *args)
+    def __init__(self, *args):
+        super().__init__(Tk(), *args)
         self.user_marcar = "Ingrese su correo"
         self.contra_marcar = "Ingrese su contraseña"
         self.fila1 = ''
         self.fila2 = ''
+        self.master.config(bg='firebrick')
+        self.master.geometry('350x500+500+50')
+        self.master.overrideredirect(1)
+        self.master.resizable(0, 0)
         self.widgets()
+        self.master.mainloop()
 
     def entry_out(self, event, event_text):
         if event['fg'] == 'black' and len(event.get()) == 0:
@@ -40,20 +45,21 @@ class Login(Frame):
             self.entry2['show'] = ""
 
     def salir(self):
-        from me.reb4ck.prode.frame.Main import Main
+        from frame.main_frame import Main
+        self.master.withdraw()
         self.master.destroy()
+        self.master.quit()
         Main.open()
 
-    def acceder_ventana_dos(self):
-        for i in range(101):
-            self.barra['value'] += 1
-            self.master.update()
-            time.sleep(0.02)
-
+    def join_prode_frame(self):
+        #for i in range(101):
+        #    self.barra['value'] += 1
+        #    self.master.update()
+         #   time.sleep(0.02)
         self.master.withdraw()
-        Prode.open(self.usuario)
+        Prode(self.usuario)
 
-    def verificacion_users(self):
+    def check_access(self):
         self.indica1['text'] = ''
         self.indica2['text'] = ''
         users_entry = self.entry1.get()
@@ -79,7 +85,7 @@ class Login(Frame):
                 self.indica1['text'] = 'Email incorrecto'
             else:
                 self.executing = True
-                self.acceder_ventana_dos()
+                self.join_prode_frame()
 
     def widgets(self):
         self.logo = ImageLoader.get_image_from_file("logo.png")
@@ -108,7 +114,7 @@ class Login(Frame):
         self.entry2.pack(pady=4)
         self.indica2 = Label(self.master, bg='firebrick', fg='black', font=('Arial', 8, 'bold'))
         self.indica2.pack(pady=2)
-        Button(self.master, text='Iniciar Sesion', command=self.verificacion_users, activebackground='white',
+        Button(self.master, text='Iniciar Sesion', command=self.check_access, activebackground='white',
                bg='#FBAD80', font=('Arial', 12, 'bold')).pack(pady=10)
         estilo = ttk.Style()
         estilo.theme_use('clam')
@@ -120,12 +126,4 @@ class Login(Frame):
         Button(self.master, text='Atras', bg='firebrick', activebackground='firebrick', bd=0, fg='black',
                font=('Lucida Sans', 15, 'italic'), command=self.salir).pack(pady=10)
 
-    @staticmethod
-    def iniciar_sesion():
-        ventana = Tk()
-        ventana.config(bg='firebrick')
-        ventana.geometry('350x500+500+50')
-        ventana.overrideredirect(1)
-        ventana.resizable(0, 0)
-        app = Login(ventana)
-        app.mainloop()
+

@@ -6,7 +6,7 @@ import pathlib
 class MatchesConfigLoader:
     @staticmethod
     def get_matches_config():
-        path = str(pathlib.Path(__file__).parent.resolve()) + '/../../../../resources/partidos'
+        path = str(pathlib.Path(__file__).parent.resolve()) + '/../resources/partidos'
 
         os.chdir(path)
 

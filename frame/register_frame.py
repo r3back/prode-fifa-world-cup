@@ -2,6 +2,10 @@ from tkinter import Tk, Button, Entry, Label, ttk, PhotoImage
 from tkinter import END, HORIZONTAL, Frame, Toplevel
 import time
 
+from frame.prode_frame import Prode
+from game.user import User
+from service.user_service import UserService
+
 
 class Register(Frame):
     executing = False
@@ -43,26 +47,47 @@ class Register(Frame):
             self.entry2['show'] = ""
 
     def salir(self):
-        from me.reb4ck.prode.frame.Main import Main
+        from frame.main_frame import Main
         self.master.destroy()
         Main.open()
 
     def acceder_ventana_dos(self):
-        for i in range(101):
-            self.barra['value'] += 1
-            self.master.update()
-            time.sleep(0.02)
+        #for i in range(101):
+        #    self.barra['value'] += 1
+        #    self.master.update()
+         #   time.sleep(0.02)
 
         self.master.withdraw()
-        self.ventana_dos = Toplevel()
-        self.ventana_dos.title('Segunda Ventana')
-        self.ventana_dos.geometry('500x500+400+80')
-        self.ventana_dos.protocol("WM_DELETE_WINDOW", self.salir)
-        self.ventana_dos.config(bg='white')
-        self.ventana_dos.state('zoomed')
+        Prode.open(self.usuario)
 
-        Label(self.ventana_dos, text='VENTANA DOS', font='Arial 40', bg='white').pack(expand=True)
-        Button(self.ventana_dos, text='Atras', font='Arial 10', bg='red', command=self.salir).pack(expand=True)
+    def verificacion_users(self):
+        self.indica1['text'] = ''
+        self.indica2['text'] = ''
+        nombres_entry = self.entry0.get()
+        users_entry = self.entry1.get()
+        password_entry = self.entry2.get()
+
+        if users_entry != self.user_marcar or self.contra_marcar != password_entry:
+            if self.executing:
+                return None
+
+            self.usuario = UserService.get_instance().obtener_por_email(users_entry)
+
+            dato1 = "dato1"
+            dato2 = "dato2"
+
+            self.fila1 = dato1
+            self.fila2 = dato2
+
+            if self.usuario is not None:
+                self.indica2['text'] = 'Usuario ya registrado!'
+                self.indica1['text'] = ''
+            else:
+                self.executing = True
+                self.usuario = User(nombres_entry, users_entry, password_entry, [])
+                UserService.get_instance().agregar_usuario(self.usuario)
+                self.acceder_ventana_dos()
+
 
     def widgets(self):
         #Logo

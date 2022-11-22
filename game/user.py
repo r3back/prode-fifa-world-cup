@@ -1,3 +1,6 @@
+import json
+
+
 class User:
     def __init__(self, nombre, email, contrasena, datos):
         self.contrasena = contrasena
@@ -26,10 +29,8 @@ class User:
                 return prode
         return None
 
+    def get_serialized_datos(self):
+        return json.dumps(self.datos, default=lambda o: o.encode(), indent=4)
 
-class UserProde:
-    def __init__(self, equipo_local, equipo_visitante, equipo_local_goles, equipo_visitante_goles):
-        self.equipo_local = equipo_local
-        self.equipo_visitante = equipo_visitante
-        self.equipo_local_goles = equipo_local_goles
-        self.equipo_visitante_goles = equipo_visitante_goles
+
+

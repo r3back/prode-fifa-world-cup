@@ -1,4 +1,4 @@
-from me.reb4ck.prode.repository.UserRepository import UserRepository
+from repository.abstract_repository import UserRepository
 import pymysql
 
 
