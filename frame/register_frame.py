@@ -52,10 +52,10 @@ class Register(Frame):
         Main()
 
     def acceder_ventana_dos(self):
-        #for i in range(101):
-        #    self.barra['value'] += 1
-        #    self.master.update()
-         #   time.sleep(0.02)
+        for i in range(101):
+            self.barra['value'] += 1
+            self.master.update()
+            time.sleep(0.02)
 
         self.master.withdraw()
         Prode(self.usuario)

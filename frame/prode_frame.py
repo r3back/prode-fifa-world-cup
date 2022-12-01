@@ -133,8 +133,8 @@ class Prode(Frame):
             self.status = tk.NORMAL
 
             if ya_fue_jugado is True:
-                self.goles_visitante_texto[key].set("Terminado")
-                self.goles_local_texto[key].set("Terminado")
+                self.goles_visitante_texto[key].set(str(fecha))
+                self.goles_local_texto[key].set("Jugado el")
                 self.status = tk.DISABLED
 
             if userprode is not None:
