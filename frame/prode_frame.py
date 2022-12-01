@@ -38,7 +38,7 @@ class Prode(Frame):
         self.master.config(bg='firebrick')
         self.master.resizable(0, 0)
         self.widgets()
-        self.set_matches(self.flags, 1)
+        self.set_matches(self.flags, 4)
         self.master.mainloop()
 
     def getMaxPage(self):

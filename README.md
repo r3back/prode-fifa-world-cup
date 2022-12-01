@@ -18,9 +18,12 @@ With Premium Version of [Mail-Gun](https://www.mailgun.com/) (Auto-Email service
 - Add YAML Language Files
 - 
 
-## Prode GUI with Pagination:
+## Prode GUI with Pagination (Played Matches):
 
 ![img.png](https://i.imgur.com/8UqjpnU.png)
+
+## Prode GUI (Non Played Matches):
+![img.png](https://i.imgur.com/l3WSMZx.png)
 
 ## User Login/Register GUI:
 
