@@ -42,7 +42,7 @@ def start_checking():
 
 
 if __name__ == "__main__":
-    ExternalProdeAPI.descargar()
-    start_checking()
+    ExternalProdeAPI.download()
+    #start_checking()
     Main()
 

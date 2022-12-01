@@ -18,104 +18,85 @@ class MariaDBUserRepository(UserRepository):
             database=config.database,
             autocommit=True
         )
-        self.crear_tabla()
+        self.create_table()
 
-    def crear_tabla(self):
-        sql = "CREATE TABLE IF NOT EXISTS Users (UserId int AUTO_INCREMENT, Name varchar(255), Email varchar(" \
+    def create_table(self):
+        sql_statement = "CREATE TABLE IF NOT EXISTS Users (UserId int AUTO_INCREMENT, Name varchar(255), Email varchar(" \
               "255), Password varchar(255), Data varchar(29999), PRIMARY KEY (UserId));"
-        self.execute(sql)
+        self.execute_statement(sql_statement)
 
-    def obtener_por_email_y_contraseña(self, email, password):
-        sql = "SELECT Name, Email, Password, Data FROM `Users` WHERE Email=? AND Password=?"
+    def get_user_by_email_and_password(self, email, password):
+        sql_statement = "SELECT Name, Email, Password, Data FROM `Users` WHERE Email=? AND Password=?"
 
-        retorno = self.executeGet(sql, (email, password))
+        sql_return = self.execute_and_get_statement(sql_statement, (email, password))
 
-        if len(retorno) == 0:
-            return None
-        else:
-            return self.deserialize(retorno)
+        user = None if len(sql_return) == 0 else self.deserialize(sql_return)
 
-    def deserialize(self, retorno):
-        datos = json.loads(retorno[3])
+        return user
 
-        prodes = []
+    def add_new_user(self, user):
+        sql_statement = "INSERT INTO `Users` (`Name`, `Email`, `Password`, `Data`) VALUES (%s, %s, %s, %s)"
 
-        for dato in datos:
-            prodes.append(UserProde(dato["equipo_local"], dato["equipo_visitante"], dato["equipo_local_goles"],
-                                         dato["equipo_visitante_goles"], dato["email_enviado"], dato["goles_reales_local"], dato["goles_reales_visitante"]))
+        # Changes prodes to json to save in db as string
+        user_prodes = user.get_serialized_prodes()
 
-        return User(retorno[0], retorno[1], retorno[2], prodes)
+        self.execute_statement(sql_statement, (user.name, user.email, user.password, user_prodes))
 
-    def agregar_usuario(self, usuario):
-        sql = "INSERT INTO `Users` (`Name`, `Email`, `Password`, `Data`) VALUES (%s, %s, %s, %s)"
+    def save_user(self, user):
+        sql_statement = "UPDATE `Users` SET Name=?, Email=?, Password=?, Data=? WHERE Email=?"
 
-        self.datos = json.dumps(usuario.datos)
+        # Changes prodes to json to save in db as string
+        user_prodes = user.get_serialized_prodes()
 
-        self.execute(sql, (usuario.nombre, usuario.email, usuario.contrasena, self.datos))
+        self.execute_statement(sql_statement, (user.name, user.email, user.password, str(user_prodes), user.email))
 
-    def guardar_usuario(self, usuario):
-        sql = "UPDATE `Users` SET Name=?, Email=?, Password=?, Data=? WHERE Email=?"
+    def get_user_by_email(self, email):
+        sql_statement = "SELECT * FROM `Users` WHERE Email=?"
 
-        self.datos = usuario.get_serialized_datos()
+        sql_return = self.execute_and_get_statement(sql_statement, [email])
 
-        self.execute(sql, (usuario.nombre, usuario.email, usuario.contrasena, str(self.datos), usuario.email))
+        return None if len(sql_return) == 0 else User(sql_return[0], sql_return[1], sql_return[2], [])
 
-    def obtener_por_email(self, email):
-        sql = "SELECT * FROM `Users` WHERE Email=?"
+    def get_by_id(self, user_id):
+        sql_statement = "SELECT Name, Email, Password, Data FROM `Users` WHERE UserId=?"
 
-        retorno = self.executeGet(sql, [email])
+        sql_return = self.execute_and_get_statement(sql_statement, user_id)
 
-        if len(retorno) == 0:
-            return None
-        else:
-            # datos = json.load(retorno[3])
-            return User(retorno[0], retorno[1], retorno[2], [])
-
-    def obtener_por_id(self, id):
-        sql = "SELECT Name, Email, Password, Data FROM `Users` WHERE UserId=?"
-
-        retorno = self.executeGet(sql, (id))
-
-        if len(retorno) == 0:
-            return None
-        else:
-            return self.deserialize(retorno)
+        return None if len(sql_return) == 0 else self.deserialize(sql_return)
 
     def get_all_users(self):
-        ids = self.get_all_ids()
+        ids = self.get_all_user_ids()
 
-        users = []
+        users = list(map(lambda user_id: self.get_by_id(user_id), ids))
 
-        for id in ids:
-            user = self.obtener_por_id(id)
-            if user is None:
-                continue
-            users.append(user)
+        return list(filter(lambda user: user is not None, users))
 
-        return users
-
-    def get_all_ids(self):
+    def get_all_user_ids(self):
         sql = "SELECT UserId FROM `Users`"
 
-        retorno = self.executeGet(sql)
+        sql_return = self.execute_and_get_statement(sql)
 
-        ids = []
+        return None if len(sql_return) == 0 else map(lambda dato: str(dato), sql_return)
 
-        if len(retorno) == 0:
-            return None
-        else:
-            for dato in retorno:
-                ids.append(str(dato))
-            return ids
-
-    def execute(self, statement, data: Sequence = ()):
+    def execute_statement(self, statement, data: Sequence = ()):
         with self.connection.cursor() as cursor:
             cursor.execute(statement, data)
 
-    def executeGet(self, statement, data: Sequence = ()):
+    def execute_and_get_statement(self, statement, data: Sequence = ()):
         iterable = []
         with self.connection.cursor() as cursor:
             cursor.execute(statement, data)
             for valor in cursor:
                 return valor
             return iterable
+
+    @staticmethod
+    def deserialize(sql_return):
+        prodes_json = json.loads(sql_return[3])
+
+        prodes_deserialized = list(
+            map(lambda dato: UserProde(dato["equipo_local"], dato["equipo_visitante"], dato["equipo_local_goles"],
+                                       dato["equipo_visitante_goles"], dato["email_enviado"], dato["goles_reales_local"],
+                                       dato["goles_reales_visitante"]), prodes_json))
+
+        return User(sql_return[0], sql_return[1], sql_return[2], prodes_deserialized)

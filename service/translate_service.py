@@ -35,5 +35,5 @@ class TranslateService:
     }
 
     @staticmethod
-    def translate(name):
+    def translate_to_spanish(name):
         return TranslateService.to_translate[name]

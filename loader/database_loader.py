@@ -9,7 +9,6 @@ from config.database_config import DatabaseConfig
 class ConfigLoader:
     @staticmethod
     def get_database_config():
-
         path = str(pathlib.Path(__file__).parent.resolve()) + '/../resources'
 
         os.chdir(path)

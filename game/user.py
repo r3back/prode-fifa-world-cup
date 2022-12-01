@@ -2,35 +2,35 @@ import json
 
 
 class User:
-    def __init__(self, nombre, email, contrasena, datos):
-        self.contrasena = contrasena
-        self.nombre = nombre
+    def __init__(self, name, email, password, prodes):
+        self.password = password
+        self.name = name
         self.email = email
-        self.datos = datos
+        self.prodes = prodes
 
-    def getDatos(self):
-        return self.datos
+    def get_prodes(self):
+        return self.prodes
 
-    def getNombre(self):
-        return self.nombre
+    def get_name(self):
+        return self.name
 
-    def getEmail(self):
+    def get_email(self):
         return self.email
 
-    def getContrasena(self):
-        return self.contrasena
+    def get_password(self):
+        return self.password
 
-    def add_datos(self, datos):
-        self.datos += datos
+    def add_prodes(self, prodes):
+        self.prodes += prodes
 
-    def get_user_prode(self, equipo_local, equipo_visitante):
-        for prode in self.datos:
+    def get_prode(self, equipo_local, equipo_visitante):
+        for prode in self.prodes:
             if prode.equipo_local == equipo_local and prode.equipo_visitante == equipo_visitante:
                 return prode
         return None
 
-    def get_serialized_datos(self):
-        return json.dumps(self.datos, default=lambda o: o.encode(), indent=4)
+    def get_serialized_prodes(self):
+        return json.dumps(self.prodes, default=lambda o: o.encode(), indent=4)
 
 
 

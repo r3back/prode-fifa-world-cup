@@ -1,20 +1,23 @@
-# import pymysql
-# from DBUtils.SteadyDB import connect
 from abc import abstractmethod
 
 
-# db = connect(
-#  creator = pymysql,
-#  user = 'guest', password = '', database = 'name',
-#  autocommit = True, charset = 'utf8mb4',
-#  cursorclass = pymysql.cursors.DictCursor)
-
-# def iniciar_conexion():
-class UserRepository():
+class UserRepository:
     @abstractmethod
-    def obtener_por_email_y_contraseña(self, email, password):
+    def get_user_by_email_and_password(self, email, password):
         pass
 
     @abstractmethod
-    def guardar_usuario(self, usuario):
+    def save_user(self, user):
+        pass
+
+    @abstractmethod
+    def get_user_by_email(self, email):
+        pass
+
+    @abstractmethod
+    def add_new_user(self, user):
+        pass
+
+    @abstractmethod
+    def get_all_users(self):
         pass

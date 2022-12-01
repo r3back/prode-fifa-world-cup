@@ -35,7 +35,7 @@ class WinChecker():
     def check_winners(self):
 
         for user in UserService.get_instance().get_all_users():
-            prodes = user.datos
+            prodes = user.prodes
 
             for prode in prodes:
                 if prode.email_enviado == "false":

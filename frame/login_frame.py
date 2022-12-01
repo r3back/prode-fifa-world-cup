@@ -49,7 +49,7 @@ class Login(Frame):
         self.master.withdraw()
         self.master.destroy()
         self.master.quit()
-        Main.open()
+        Main()
 
     def join_prode_frame(self):
         #for i in range(101):
@@ -72,7 +72,7 @@ class Login(Frame):
             users_entry = users_entry
             password_entry = password_entry
 
-            self.usuario = UserService.get_instance().obtener_por_email_y_contraseña(users_entry, password_entry)
+            self.usuario = UserService.get_instance().get_user_by_email_and_password(users_entry, password_entry)
 
             dato1 = "dato1"
             dato2 = "dato2"

@@ -25,7 +25,6 @@ class Main(Frame):
         self.master.destroy()
         Login()
 
-
     def registrarse(self):
         self.master.destroy()
         Register.registrarse()

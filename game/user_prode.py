@@ -12,6 +12,5 @@ class UserProde:
         self.equipo_visitante_goles = equipo_visitante_goles
         self.goles_reales_visitante = goles_reales_visitante
 
-
     def encode(self):
         return self.__dict__

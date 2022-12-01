@@ -1,4 +1,5 @@
 from factory.database_factory import DatabaseFactory
+from repository.abstract_repository import UserRepository
 
 
 class UserService:
@@ -11,19 +12,19 @@ class UserService:
         return UserService.__instance
 
     def __init__(self):
-        self.repository = DatabaseFactory().obtener_base_de_datos()
+        self.repository: UserRepository = DatabaseFactory.get_instance().create_database()
 
-    def obtener_por_email_y_contraseña(self, email, contrasena):
-        return self.repository.obtener_por_email_y_contraseña(email, contrasena)
+    def get_user_by_email_and_password(self, email, password):
+        return self.repository.get_user_by_email_and_password(email, password)
 
-    def obtener_por_email(self, email):
-        return self.repository.obtener_por_email(email)
+    def get_user_by_email(self, email):
+        return self.repository.get_user_by_email(email)
 
-    def guardar_usuario(self, usuario):
-        return self.repository.guardar_usuario(usuario)
+    def save_user(self, usuario):
+        return self.repository.save_user(usuario)
 
-    def agregar_usuario(self, usuario):
-        return self.repository.agregar_usuario(usuario)
+    def add_new_user(self, usuario):
+        return self.repository.add_new_user(usuario)
 
     def get_all_users(self):
         return self.repository.get_all_users()

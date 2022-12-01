@@ -1,4 +1,4 @@
-class DatabaseConfig():
+class DatabaseConfig:
     def __init__(self, host, database, user_name, password, port, use_ssl, db_type):
         self.host = host
         self.database = database

@@ -13,17 +13,7 @@ from game.match import Match
 class ExternalProdeAPI:
     teams_map = {}
     __instance = None
-
-    @staticmethod
-    def get_name_by_id(id):
-        team = ExternalProdeAPI.get_instance().teams_map.get(int(id))
-        return team.get_name()
-
-    @staticmethod
-    def get_flag_by_id(id):
-        team = ExternalProdeAPI.get_instance().teams_map.get(int(id))
-        return team.get_flag()
-
+    api_uri = ""
 
     @staticmethod
     def get_instance():
@@ -32,8 +22,17 @@ class ExternalProdeAPI:
         return ExternalProdeAPI.__instance
 
     @staticmethod
-    def obtener_equipo(token, id):
+    def get_team_name_by_id(id):
+        team = ExternalProdeAPI.get_instance().teams_map.get(int(id))
+        return team.get_name()
 
+    @staticmethod
+    def get_team_flag_by_id(id):
+        team = ExternalProdeAPI.get_instance().teams_map.get(int(id))
+        return team.get_flag()
+
+    @staticmethod
+    def get_team(token, id):
         equipo = None
 
         if token is None:
@@ -48,41 +47,7 @@ class ExternalProdeAPI:
         return request_json
 
     @staticmethod
-    def obtener_partidos_request():
-        token = ExternalProdeAPI.obtener_token()
-
-        equipo = None
-
-        if token is None:
-            return equipo
-
-        request = requests.get('http://api.cup2022.ir/api/v1/team/{}'.format(id), headers={
-            'Authorization': 'Bearer {}'.format(token),
-        })
-
-        request_json = json.loads(request.text)
-
-        return request_json
-
-    @staticmethod
-    def obtener_equipo_por_id(token, id):
-
-        equipo = None
-
-        if token is None:
-            return equipo
-
-        request = requests.get('http://api.cup2022.ir/api/v1/team/{}'.format(id), headers={
-            'Authorization': 'Bearer {}'.format(token),
-        })
-
-        request_json = json.loads(request.text)
-
-        return request_json["data"][0]["name_en"]
-
-    @staticmethod
-    def obtener_token():
-        token = None
+    def get_token():
         try:
             myobj = {
                 "email": "andresiphone132021@gmail.com",
@@ -91,17 +56,13 @@ class ExternalProdeAPI:
 
             login = requests.post('http://api.cup2022.ir/api/v1/user/login', json=myobj)
 
-            y = json.loads(login.text)
-
-            token = y["data"]["token"]
-
+            return json.loads(login.text)["data"]["token"]
         except:
             print("Se Produjo un error tratando de obtener el token!")
-        return token
+        return None
 
     @staticmethod
-    def descargar():
-
+    def download():
         import pathlib
 
         path = str(pathlib.Path(__file__).parent.resolve()) + '/../resources'
@@ -113,24 +74,25 @@ class ExternalProdeAPI:
 
         os.chdir(path + "/partidos")
 
-        token = ExternalProdeAPI.obtener_token()
+        token = ExternalProdeAPI.get_token()
 
-        ExternalProdeAPI.descargar_partidos_task(token)
+        ExternalProdeAPI.download_matches_task(token)
 
-        asyncio.run(ExternalProdeAPI.create_all_files(token))
+        asyncio.run(ExternalProdeAPI.download_team_files(token))
 
     @staticmethod
-    def descargar_partidos_task(token):
+    def download_matches_task(token):
         thread = Thread(target=ExternalProdeAPI.create_runnable(token))
         thread.start()
 
     @staticmethod
     def create_runnable(token):
         loop = asyncio.new_event_loop()
-        loop.run_until_complete(ExternalProdeAPI.descargar_partidos(token))
+        loop.run_until_complete(ExternalProdeAPI.download_matches(token))
 
+    # Download all matches
     @staticmethod
-    async def descargar_partidos(token):
+    async def download_matches(token):
 
         import pathlib
 
@@ -143,9 +105,10 @@ class ExternalProdeAPI:
 
         os.chdir(path + "/partidos")
 
-        #Current File
+        # Current File
         file_name = 'partidos.json'
 
+        # If file of matches doesn't exist it download a new one trough api
         if os.path.exists(file_name):
             file = open(file_name, encoding="utf8")
             config = json.load(file)
@@ -155,50 +118,38 @@ class ExternalProdeAPI:
                 'Authorization': 'Bearer {}'.format(token),
             })
 
-            print("Text: " + request.text)
             request_json = json.loads(request.text)
 
-            if request_json == config:
-                print("Es igual")
-            else:
+            # If are not equals it replace contents
+            if request_json != config:
                 json_object = json.dumps(request_json)
-
                 with open(file_name, "w") as outfile:
                     outfile.write(json_object)
 
-                print("No Es igual")
-
-            print("Existe el archivo de los partidos")
-        else:
-            print("No existe el archi de los partidos")
-
-
-
-
-        #asyncio.run(ExternalProdeAPI.create_all_files(token))
-
+    # Creates a file per each team
     @staticmethod
-    async def create_all_files(token):
-        for number in range(1, 32):
-            asyncio.create_task(ExternalProdeAPI.create_file(token, number))
+    async def download_team_files(token):
+        for number in range(1, 33):
+            asyncio.create_task(ExternalProdeAPI.create_team_file(token, number))
 
         await asyncio.gather(*asyncio.all_tasks() - {asyncio.current_task()})
 
     @staticmethod
-    async def create_file(token, number):
-        file_name = '{}.json'.format(str(number))
+    async def create_team_file(token, id):
+        file_name = '{}.json'.format(str(id))
 
         if os.path.exists(file_name):
             file = open(file_name, encoding="utf8")
+
             config = json.load(file)
+
             file.close()
 
-            ExternalProdeAPI.add_to_dictionary(number, config)
-
+            ExternalProdeAPI.add_to_dictionary(id, config)
         else:
-            dictionary = ExternalProdeAPI.obtener_equipo(token, number)
+            dictionary = ExternalProdeAPI.get_team(token, id)
 
-            ExternalProdeAPI.add_to_dictionary(number, dictionary)
+            ExternalProdeAPI.add_to_dictionary(id, dictionary)
 
             json_object = json.dumps(dictionary)
 
@@ -206,41 +157,43 @@ class ExternalProdeAPI:
                 outfile.write(json_object)
 
     @staticmethod
-    def add_to_dictionary(number, json):
+    def add_to_dictionary(id, json):
         if len(json["data"]) >= 1:
             name = json["data"][0]["name_en"]
             flag = json["data"][0]["flag"]
-            if number == 31:
+            ExternalProdeAPI.get_instance().teams_map[id] = Team(name, flag)
+            if id == 31:
                 print("Partidos cargados con exito!")
-            ExternalProdeAPI.get_instance().teams_map[number] = Team(name, flag)
 
     @staticmethod
-    def obtener_partidos():
-        partidos = []
+    def get_matches():
+        matches = []
 
         request = MatchesConfigLoader.get_matches_config()
 
         for partido in request["data"]:
-            try:
-                equipo_local_id = partido["home_team_id"]
-                equipo_visitante_id = partido["away_team_id"]
-                ya_fue_jugado = ExternalProdeAPI.ya_fue_jugado(partido["finished"])
-                fecha = partido["local_date"]
+            # try:
+            equipo_local_id = partido["home_team_id"]
+            equipo_visitante_id = partido["away_team_id"]
+            ya_fue_jugado = ExternalProdeAPI.has_been_played(partido["finished"])
+            fecha = partido["local_date"]
 
-                equipo_local = ExternalProdeAPI.get_instance().get_name_by_id(equipo_local_id)
-                equipo_visitante = ExternalProdeAPI.get_instance().get_name_by_id(equipo_visitante_id)
+            equipo_local = ExternalProdeAPI.get_instance().get_team_name_by_id(equipo_local_id)
+            equipo_visitante = ExternalProdeAPI.get_instance().get_team_name_by_id(equipo_visitante_id)
 
-                bandera_local = ExternalProdeAPI.get_instance().get_flag_by_id(equipo_local_id)
-                bandera_visitante = ExternalProdeAPI.get_instance().get_flag_by_id(equipo_visitante_id)
+            bandera_local = ExternalProdeAPI.get_instance().get_team_flag_by_id(equipo_local_id)
+            bandera_visitante = ExternalProdeAPI.get_instance().get_team_flag_by_id(equipo_visitante_id)
 
-                partidos.append(Match(equipo_local, equipo_visitante, bandera_local, bandera_visitante, ya_fue_jugado, fecha))
-            except:
-                continue
+            matches.append(
+                Match(equipo_local, equipo_visitante, bandera_local, bandera_visitante, ya_fue_jugado, fecha))
+        # except:
+        #   print("Exception " + str(partido))
+        #    continue
 
-        return partidos
+        return matches
 
     @staticmethod
-    def ya_fue_jugado(status):
+    def has_been_played(status):
         if status == "FALSE":
             return False
         else:

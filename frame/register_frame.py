@@ -49,7 +49,7 @@ class Register(Frame):
     def salir(self):
         from frame.main_frame import Main
         self.master.destroy()
-        Main.open()
+        Main()
 
     def acceder_ventana_dos(self):
         #for i in range(101):
@@ -58,7 +58,7 @@ class Register(Frame):
          #   time.sleep(0.02)
 
         self.master.withdraw()
-        Prode.open(self.usuario)
+        Prode(self.usuario)
 
     def verificacion_users(self):
         self.indica1['text'] = ''
@@ -71,7 +71,7 @@ class Register(Frame):
             if self.executing:
                 return None
 
-            self.usuario = UserService.get_instance().obtener_por_email(users_entry)
+            self.usuario = UserService.get_instance().get_user_by_email(users_entry)
 
             dato1 = "dato1"
             dato2 = "dato2"
@@ -85,7 +85,7 @@ class Register(Frame):
             else:
                 self.executing = True
                 self.usuario = User(nombres_entry, users_entry, password_entry, [])
-                UserService.get_instance().agregar_usuario(self.usuario)
+                UserService.get_instance().add_new_user(self.usuario)
                 self.acceder_ventana_dos()
 
 
