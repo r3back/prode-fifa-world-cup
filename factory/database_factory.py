@@ -1,6 +1,7 @@
 from loader.database_loader import ConfigLoader
 from repository.abstract_repository import UserRepository
 from repository.maria_db_repository import MariaDBUserRepository
+from repository.memory_repository import InMemoryRepository
 from repository.mysql_repository import MySQLUserRepository
 
 
@@ -21,5 +22,7 @@ class DatabaseFactory:
             return MariaDBUserRepository(self.config)
         elif self.config.db_type == "MYSQL":
             return MySQLUserRepository(self.config)
+        elif self.config.db_type == "FLAT":
+            return InMemoryRepository()
         else:
-            return None
+            return InMemoryRepository()

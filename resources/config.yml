@@ -6,11 +6,11 @@
 # - H2
 # - FLAT
 # - MYSQL
-# - REDIS
+# - MARIADB
 host: localhost
 database: pythontest
 user_name: root
 password: ''
 port: 3306
 use_ssl: false
-db_type: MARIADB
+db_type: FLAT
